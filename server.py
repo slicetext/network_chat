@@ -21,7 +21,10 @@ def client_msg(client,index):
         print("Message recieved: "+str(data.decode()))
         for i in range(len(clients)):
             #if(i!=index):
-            clients[i][0].send(data)
+            try:
+                clients[i][0].send(data)
+            except BrokenPipeError:
+                clients.pop(i)
 while True:
     con,addr=s.accept()
     clients.append([con,addr])
