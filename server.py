@@ -18,13 +18,15 @@ def client_msg(client,index):
             data=client[0].recv(BUF_SIZE)
         except Exception as e:
             print("Error with client at "+str(client[1])+" "+str(e))
-        print("Message recieved: "+str(data.decode()))
+        if(data.decode().strip()!=""):
+            print("Message recieved: "+str(data.decode()))
         for i in range(len(clients)):
             #if(i!=index):
             try:
                 clients[i][0].send(data)
             except BrokenPipeError:
                 clients.pop(i)
+                return
 while True:
     con,addr=s.accept()
     clients.append([con,addr])
@@ -32,6 +34,8 @@ while True:
     name=con.recv(BUF_SIZE).decode()
     con_msg="New client connected at "+str(addr)+" Name: "+str(name)
     print(con_msg)
+    for i in clients:
+        i[0].send(str(name+" joined the chat").encode())
     t=Thread(target=client_msg,args=[[con,addr],index])
     t.start()
 for i in clients:
